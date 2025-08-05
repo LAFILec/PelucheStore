@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Fil - Tienda de Peluches</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="magic-canvas" id="magicCanvas"></div>
+    <div class="geometric-overlay" id="geometricOverlay"></div>
+
+    <header class="header">
+        <a href="https://lafilec.github.io/LAFILec/" class="logo">LA FIL</a>
+        <nav class="nav-buttons">
+            <a href="https://lafilec.github.io/LAFILec/" class="btn btn-return">Retornar</a>
+            <a href="https://vaki.co/es/vaki/9bw4pe0KavU7nMg0O8XH?utm_source=copy&utm_medium=vaki-page&utm_campaign=v4" class="btn btn-crowdfunding priority-btn" target="_blank" rel="noopener">Crowdfunding</a>
+            <a href="https://www.instagram.com/lafil.ec/?igsh=MTc1MzY4MjdsYXZhYg%3D%3D" class="btn btn-ig priority-btn" target="_blank" rel="noopener">Instagram</a>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <section class="hero-section">
+            <h1 class="hero-title">Peluches que Abrazan Corazones</h1>
+            <p class="hero-subtitle">Compañeros suaves para todas las edades y momentos especiales</p>
+            <div class="hero-decoration"></div>
+        </section>
+
+        <section class="products-grid" id="productsGrid">
+            <div class="product-card" data-category="clasico">
+                <div class="product-image">
+                    <div class="image-placeholder">🧸</div>
+                    <div class="image-overlay"></div>
+                </div>
+                <h3 class="product-name">Osito Clásico</h3>
+                <p class="product-description">Un tierno osito tradicional que abraza con suavidad infinita. Perfecto compañero para cualquier edad.</p>
+                <div class="product-price">$25.99</div>
+                <button class="btn btn-buy" onclick="openModal('Osito Clásico', '$25.99')">Comprar Ahora</button>
+            </div>
+
+            <div class="product-card" data-category="aventura">
+                <div class="product-image">
+                    <div class="image-placeholder">🐰</div>
+                    <div class="image-overlay"></div>
+                </div>
+                <h3 class="product-name">Conejito Aventurero</h3>
+                <p class="product-description">Este conejito lleva consigo aventuras y sueños. Suave como una caricia, ideal para acompañar.</p>
+                <div class="product-price">$22.99</div>
+                <button class="btn btn-buy" onclick="openModal('Conejito Aventurero', '$22.99')">Comprar Ahora</button>
+            </div>
+
+            <div class="product-card" data-category="invierno">
+                <div class="product-image">
+                    <div class="image-placeholder">🐻‍❄️</div>
+                    <div class="image-overlay"></div>
+                </div>
+                <h3 class="product-name">Osito Polar</h3>
+                <p class="product-description">Tan blanco como la nieve, tan suave como las nubes. Un compañero especial para momentos únicos.</p>
+                <div class="product-price">$28.99</div>
+                <button class="btn btn-buy" onclick="openModal('Osito Polar', '$28.99')">Comprar Ahora</button>
+            </div>
+
+            <div class="product-card" data-category="magico">
+                <div class="product-image">
+                    <div class="image-placeholder">🦄</div>
+                    <div class="image-overlay"></div>
+                </div>
+                <h3 class="product-name">Unicornio Mágico</h3>
+                <p class="product-description">Lleno de magia y fantasía, este unicornio inspira creatividad y momentos especiales llenos de imaginación.</p>
+                <div class="product-price">$35.99</div>
+                <button class="btn btn-buy" onclick="openModal('Unicornio Mágico', '$35.99')">Comprar Ahora</button>
+            </div>
+
+            <div class="product-card" data-category="tierno">
+                <div class="product-image">
+                    <div class="image-placeholder">🐱</div>
+                    <div class="image-overlay"></div>
+                </div>
+                <h3 class="product-name">Gatito Cariñoso</h3>
+                <p class="product-description">Con su mirada tierna y suavidad especial, este gatito será el compañero perfecto para relajarse.</p>
+                <div class="product-price">$24.99</div>
+                <button class="btn btn-buy" onclick="openModal('Gatito Cariñoso', '$24.99')">Comprar Ahora</button>
+            </div>
+
+            <div class="product-card" data-category="fiel">
+                <div class="product-image">
+                    <div class="image-placeholder">🐶</div>
+                    <div class="image-overlay"></div>
+                </div>
+                <h3 class="product-name">Perrito Fiel</h3>
+                <p class="product-description">Leal y cariñoso, este perrito representa la amistad verdadera y la compañía en todos los momentos.</p>
+                <div class="product-price">$26.99</div>
+                <button class="btn btn-buy" onclick="openModal('Perrito Fiel', '$26.99')">Comprar Ahora</button>
+            </div>
+
+            <div class="product-card" data-category="valiente">
+                <div class="product-image">
+                    <div class="image-placeholder">🦁</div>
+                    <div class="image-overlay"></div>
+                </div>
+                <h3 class="product-name">León Valiente</h3>
+                <p class="product-description">Fuerte pero tierno, este león inspira valor y confianza mientras ofrece los abrazos más cálidos.</p>
+                <div class="product-price">$29.99</div>
+                <button class="btn btn-buy" onclick="openModal('León Valiente', '$29.99')">Comprar Ahora</button>
+            </div>
+
+            <div class="product-card" data-category="elegante">
+                <div class="product-image">
+                    <div class="image-placeholder">🐧</div>
+                    <div class="image-overlay"></div>
+                </div>
+                <h3 class="product-name">Pingüino Elegante</h3>
+                <p class="product-description">Con su elegancia natural y suavidad única, este pingüino trae alegría y diversión a cualquier hogar.</p>
+                <div class="product-price">$27.99</div>
+                <button class="btn btn-buy" onclick="openModal('Pingüino Elegante', '$27.99')">Comprar Ahora</button>
+            </div>
+
+            <div class="product-card" data-category="sabio">
+                <div class="product-image">
+                    <div class="image-placeholder">🐘</div>
+                    <div class="image-overlay"></div>
+                </div>
+                <h3 class="product-name">Elefante Sabio</h3>
+                <p class="product-description">Grande en corazón y suavidad, este elefante representa la sabiduría y los abrazos más reconfortantes.</p>
+                <div class="product-price">$32.99</div>
+                <button class="btn btn-buy" onclick="openModal('Elefante Sabio', '$32.99')">Comprar Ahora</button>
+            </div>
+        </section>
+    </main>
+
+    <div id="purchaseModal" class="modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-product-name" id="modalProductName">Producto</h2>
+                <div class="modal-price" id="modalPrice">$0.00</div>
+            </div>
+            
+            <div class="qr-container">
+                <div class="qr-placeholder">
+                    <div class="qr-frame">
+                        <p>Aquí irá tu código QR de pago</p>
+                        <div class="qr-icon">📱</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="seller-info">
+                <h4>Datos del Vendedor</h4>
+                <div class="seller-details">
+                    <p><strong>La Fil</strong></p>
+                    <p>Email: contacto@lafil.com</p>
+                    <p>Teléfono: +1 (555) 123-4567</p>
+                    <p>Tu tienda de peluches de confianza</p>
+                </div>
+            </div>
+            
+            <button class="btn btn-close" onclick="closeModal()">Cerrar y Seguir Explorando</button>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2025 La Fil. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
