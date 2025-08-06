@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Fil - Tienda de Peluches</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="magic-canvas" id="magicCanvas"></div>
+    <div class="geometric-overlay" id="geometricOverlay"></div>
+
+    <header class="header">
+        <a href="https://lafilec.github.io/LAFILec/" class="logo">LA FIL</a>
+        <nav class="nav-buttons">
+            <a href="https://lafilec.github.io/LAFILec/" class="btn btn-return">Retornar</a>
+            <a href="https://vaki.co/es/vaki/9bw4pe0KavU7nMg0O8XH?utm_source=copy&utm_medium=vaki-page&utm_campaign=v4" class="btn btn-crowdfunding priority-btn" target="_blank" rel="noopener">Crowdfunding</a>
+            <a href="https://www.instagram.com/lafil.ec/?igsh=MTc1MzY4MjdsYXZhYg%3D%3D" class="btn btn-ig priority-btn" target="_blank" rel="noopener">Instagram</a>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <section class="hero-section">
+            <h1 class="hero-title">Peluches que Abrazan Corazones</h1>
+            <p class="hero-subtitle">Compañeros suaves para todas las edades y momentos especiales</p>
+            <div class="hero-decoration"></div>
+        </section>
+
+        <section class="products-grid" id="productsGrid">
+            <div class="product-card" data-category="clasico">
+                <div class="product-image">
+                    <div class="product-image">
+                        <img src="Vaquita te amo.jpg" alt="Vaquita Corazón" class="product-img">
+                        <div class="image-overlay"></div>
+                    </div>
+
+                    <div class="image-overlay"></div>
+                </div>
+                <h3 class="product-name">Vaquita Corazón</h3>
+                <p class="product-description">15x15 cm</p>
+                <p class="product-description">Su ternura salta a la vista.
+Detalles en blanco, negro y rosa que conquistan con solo mirarla.</p>
+                <div class="product-price">$2.99</div>
+                <button class="btn btn-buy" onclick="openModal('Vaquita Corazón', '$2.99')">Comprar Ahora</button>
+            </div>
+
+            <div class="product-card" data-category="aventura">
+                <div class="product-image">
+                    <img src="Diablo rojo.jpg" alt="Diablo Rojo" class="product-img">
+                        <div class="image-overlay"></div>
+                    <div class="image-overlay"></div>
+                </div>
+                <h3 class="product-name">Diablo Rojo</h3>
+                <p class="product-description">19x19 cm</p>
+                <p class="product-description">Picardía en su forma más suave.
+Rojo intenso que no pasa desapercibido.</p>
+                <div class="product-price">$2.50</div>
+                <button class="btn btn-buy" onclick="openModal('Diablo Rojo', '$2.50')">Comprar Ahora</button>
+            </div>
+
+            <div class="product-card" data-category="invierno">
+                <div class="product-image">
+                    <img src="Oso dorado.jpg" alt="Oso Dorado" class="product-img">
+                        <div class="image-overlay"></div>
+                    <div class="image-overlay"></div>
+                </div>
+                <h3 class="product-name">Oso Dorado</h3>
+                <p class="product-description">19x19 cm</p>
+                <p class="product-description">Un clásico con brillo.
+Dorado, rojo y beige para abrazar estilo y calidez</p>
+                <div class="product-price">$4.50</div>
+                <button class="btn btn-buy" onclick="openModal('Oso Dorado', '$4.50')">Comprar Ahora</button>
+            </div>
+
+            <div class="product-card" data-category="magico">
+                <div class="product-image">
+                    <img src="Oso lazo morado.jpg" alt="Oso Vintage" class="product-img">
+                        <div class="image-overlay"></div>
+                    <div class="image-overlay"></div>
+                </div>
+                <h3 class="product-name">Oso Vintage</h3>
+                <p class="product-description">18x19 cm</p>
+                <p class="product-description">Elegancia envuelta en suavidad.
+Perfecto equilibrio entre ternura y presencia.</p>
+                <div class="product-price">$4.25</div>
+                <button class="btn btn-buy" onclick="openModal('Oso Vintag', '$4.25')">Comprar Ahora</button>
+            </div>
+
+            <div class="product-card" data-category="tierno">
+                <div class="product-image">
+                    <img src="Conejo.jpg" alt="Conejo" class="product-img">
+                        <div class="image-overlay"></div>
+                    <div class="image-overlay"></div>
+                </div>
+                <h3 class="product-name">Conejo Cariñoso</h3>
+                <p class="product-description">18x18 cm</p>
+                <p class="product-description">Delicado y dulce en cada detalle.
+Rosa, salmón y blanco que invitan a acariciar.</p>
+                <div class="product-price">$4.50</div>
+                <button class="btn btn-buy" onclick="openModal('Conejo cariñoso', '$4.50')">Comprar Ahora</button>
+            </div>
+
+            <div class="product-card" data-category="fiel">
+                <div class="product-image">
+                     <img src="Mini mueble.jpg" alt="Mueble" class="product-img">
+                        <div class="image-overlay"></div>
+                    <div class="image-overlay"></div>
+                </div>
+                <h3 class="product-name">Mini Mueble</h3>
+                <p class="product-description">16x15 cm</p>
+                <p class="product-description">Estilo compacto que sorprende.
+Negro y café para decorar o acompañar tus figuras favoritas.</p>
+                <div class="product-price">$9.00</div>
+                <button class="btn btn-buy" onclick="openModal('Mini Mueble', '$9.00')">Comprar Ahora</button>
+            </div>
+
+            <div class="product-card" data-category="valiente">
+                <div class="product-image">
+                    <img src="Conejo te amo.jpg" alt="Conejo Te Amo" class="product-img">
+                        <div class="image-overlay"></div>
+                    <div class="image-overlay"></div>
+                </div>
+                <h3 class="product-name">Conejo Te Amo</h3>
+                <p class="product-description">30x22 cm</p>
+                <p class="product-description">Más que un peluche, un regalo con intención.
+Tonos suaves en blanco, beige, celeste y morado para decirlo sin palabras.</p>
+                <div class="product-price">$8.00</div>
+                <button class="btn btn-buy" onclick="openModal('Conejo Te Amo', '$8.00')">Comprar Ahora</button>
+            </div>
+
+            <div class="product-card" data-category="elegante">
+                <div class="product-image">
+                    <img src="Oso feliz dia.jpg" alt="Oso de Feliz Día" class="product-img">
+                        <div class="image-overlay"></div>
+                    <div class="image-overlay"></div>
+                </div>
+                <h3 class="product-name">Oso de Feliz Día</h3>
+                <p class="product-description">18x18 cm</p>
+                <p class="product-description">Ideal para alegrar cualquier momento.
+Beige y celeste en un abrazo listo para regalar.</p>
+                <div class="product-price">$4.00</div>
+                <button class="btn btn-buy" onclick="openModal('Oso de Feliz Día', '$4.00')">Comprar Ahora</button>
+            </div>
+
+            <div class="product-card" data-category="sabio">
+                <div class="product-image">
+                    <img src="Vaquita adorno.jpg" alt="Vaquita de Adorno" class="product-img">
+                        <div class="image-overlay"></div>
+                    <div class="image-overlay"></div>
+                </div>
+                <h3 class="product-name">Vaquita de Adorno</h3>
+                <p class="product-description">11x11 cm</p>
+                <p class="product-description">Pequeña, adorable y con sonido.
+Café, blanco, negro y rosa que encantan al instante.</p>
+                <div class="product-price">$1.99</div>
+                <button class="btn btn-buy" onclick="openModal('Vaquita de Adorno', '$1.99')">Comprar Ahora</button>
+            </div>
+        </section>
+    </main>
+
+    <div id="purchaseModal" class="modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-product-name" id="modalProductName">Producto</h2>
+                <div class="modal-price" id="modalPrice">$0.00</div>
+            </div>
+            
+            <div class="qr-container">
+                <div class="qr-placeholder">
+                    <div class="qr-frame">
+                        <p>código QR de pago</p>
+                        <div class="qr-icon">📱</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="seller-info">
+                <h4>Datos del Vendedor</h4>
+                <div class="seller-details">
+                    <p><strong>La Fil</strong></p>
+                    <p>Email: lafilec01@gmail.com</p>
+                    <p>Teléfono: +593 991389251</p>
+                    <p>Envíanos tu comprobante de pago</p>
+                </div>
+            </div>
+            
+            <button class="btn btn-close" onclick="closeModal()">Cerrar y Seguir Explorando</button>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2025 La Fil. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
