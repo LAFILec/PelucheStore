@@ -1,207 +1,339 @@
-class MagicAnimationEngine {
+let cart = [];
+let isCartOpen = false;
+class PlushStoreApp {
     constructor() {
-        this.magicCanvas = document.getElementById('magicCanvas');
-        this.geometricOverlay = document.getElementById('geometricOverlay');
-        this.isAnimationActive = true;
-        this.particles = [];
-        this.shapes = [];
         this.init();
     }
 
     init() {
-        this.startParticleSystem();
-        this.startGeometricSystem();
-        this.initInteractionEffects();
-        this.optimizePerformance();
+        this.setupEventListeners();
+        this.initializeBackgroundEffects();
+        this.loadCartFromStorage();
+        this.setupIntersectionObserver();
+        this.optimizeForDevice();
     }
 
-    startParticleSystem() {
-        const createParticle = () => {
-            if (!this.isAnimationActive) return;
-            
-            const particle = document.createElement('div');
-            particle.className = 'floating-particle magic-effect';
-            
-            const size = Math.random() * 8 + 4;
-            const hue = Math.random() * 60 + 220;
-            const saturation = Math.random() * 30 + 70;
-            const lightness = Math.random() * 20 + 60;
-            
-            particle.style.width = size + 'px';
-            particle.style.height = size + 'px';
-            particle.style.left = Math.random() * 100 + '%';
-            particle.style.background = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-            particle.style.animationDuration = (Math.random() * 8 + 12) + 's';
-            particle.style.animationDelay = Math.random() * 2 + 's';
-            
-            this.magicCanvas.appendChild(particle);
-            this.particles.push(particle);
-            
-            setTimeout(() => {
-                if (particle.parentNode) {
-                    particle.parentNode.removeChild(particle);
-                    this.particles = this.particles.filter(p => p !== particle);
-                }
-            }, 20000);
-        };
+    setupEventListeners() {
+        document.addEventListener('DOMContentLoaded', () => {
+            this.animateProductsOnLoad();
+        });
 
-        createParticle();
-        setInterval(createParticle, 2000);
-        
-        for (let i = 0; i < 5; i++) {
-            setTimeout(createParticle, i * 800);
-        }
-    }
-
-    startGeometricSystem() {
-        const shapes = ['triangle', 'hexagon', 'circle', 'square'];
-        
-        const createGeometricShape = () => {
-            if (!this.isAnimationActive) return;
-            
-            const shape = document.createElement('div');
-            const shapeType = shapes[Math.floor(Math.random() * shapes.length)];
-            
-            shape.className = `geometric-shape ${shapeType} magic-effect`;
-            
-            const size = Math.random() * 25 + 15;
-            const colors = ['var(--accent-coral)', 'var(--accent-gold)', 'var(--primary-fresh)', 'var(--accent-sage)'];
-            const color = colors[Math.floor(Math.random() * colors.length)];
-            
-            if (shapeType === 'triangle') {
-                const borderSize = size / 2;
-                shape.style.borderLeft = `${borderSize}px solid transparent`;
-                shape.style.borderRight = `${borderSize}px solid transparent`;
-                shape.style.borderBottom = `${size}px solid ${color}`;
-            } else if (shapeType === 'circle') {
-                shape.style.width = size + 'px';
-                shape.style.height = size + 'px';
-                shape.style.borderRadius = '50%';
-                shape.style.background = color;
-            } else if (shapeType === 'square') {
-                shape.style.width = size + 'px';
-                shape.style.height = size + 'px';
-                shape.style.background = color;
-                shape.style.borderRadius = '20%';
-            } else if (shapeType === 'hexagon') {
-                shape.style.background = color;
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                this.closeAllModals();
             }
-            
-            shape.style.top = Math.random() * 100 + '%';
-            shape.style.animationDuration = (Math.random() * 12 + 18) + 's';
-            shape.style.animationDelay = Math.random() * 3 + 's';
-            
-            this.geometricOverlay.appendChild(shape);
-            this.shapes.push(shape);
-            
+        });
+
+        window.addEventListener('resize', this.debounce(() => {
+            this.handleResize();
+        }, 250));
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+            }, { passive: false });
+        });
+    }
+
+    initializeBackgroundEffects() {
+        const backgroundEffects = document.getElementById('backgroundEffects');
+        
+        this.createFloatingElements();
+        
+        window.addEventListener('scroll', this.throttle(() => {
+            const scrolled = window.pageYOffset;
+            const parallax = scrolled * 0.05;
+            backgroundEffects.style.transform = `translateY(${parallax}px)`;
+        }, 16));
+    }
+
+    createFloatingElements() {
+        const backgroundEffects = document.getElementById('backgroundEffects');
+        const elementCount = window.innerWidth > 768 ? 6 : 3;
+
+        for (let i = 0; i < elementCount; i++) {
             setTimeout(() => {
-                if (shape.parentNode) {
-                    shape.parentNode.removeChild(shape);
-                    this.shapes = this.shapes.filter(s => s !== shape);
+                this.createFloatingParticle(backgroundEffects);
+            }, i * 3000);
+        }
+
+        for (let i = 0; i < Math.floor(elementCount / 2); i++) {
+            setTimeout(() => {
+                this.createFloatingShape(backgroundEffects);
+            }, i * 8000 + 4000);
+        }
+
+        setInterval(() => {
+            if (document.visibilityState === 'visible' && !this.isReducedMotion()) {
+                if (Math.random() > 0.7) {
+                    this.createFloatingParticle(backgroundEffects);
                 }
-            }, 30000);
-        };
-
-        createGeometricShape();
-        setInterval(createGeometricShape, 4000);
-        
-        for (let i = 0; i < 3; i++) {
-            setTimeout(createGeometricShape, i * 1500);
-        }
+                if (Math.random() > 0.85) {
+                    this.createFloatingShape(backgroundEffects);
+                }
+            }
+        }, 12000);
     }
 
-    initInteractionEffects() {
-        document.querySelectorAll('.product-card').forEach(card => {
-            card.addEventListener('mouseenter', (e) => this.createSparkleEffect(e.target));
-            card.addEventListener('click', (e) => this.createRippleEffect(e));
-        });
+    createFloatingParticle(container) {
+        const particle = document.createElement('div');
+        particle.className = 'floating-particle';
+        
+        const size = Math.random() * 4 + 3;
+        const startX = Math.random() * 100;
+        const hue = 220 + Math.random() * 60; 
+        const opacity = Math.random() * 0.3 + 0.2;
+        
+        particle.style.cssText = `
+            position: absolute;
+            left: ${startX}%;
+            top: 100%;
+            width: ${size}px;
+            height: ${size}px;
+            background: hsla(${hue}, 60%, 70%, ${opacity});
+            border-radius: 50%;
+            animation: floatUp ${20 + Math.random() * 15}s linear infinite;
+            pointer-events: none;
+        `;
 
-        document.querySelectorAll('.btn').forEach(btn => {
-            btn.addEventListener('click', (e) => this.createButtonEffect(e));
-        });
-    }
+        container.appendChild(particle);
 
-    createSparkleEffect(element) {
-        const sparkleCount = 6;
-        const rect = element.getBoundingClientRect();
-        
-        for (let i = 0; i < sparkleCount; i++) {
-            setTimeout(() => {
-                const sparkle = document.createElement('div');
-                sparkle.className = 'sparkle-effect magic-effect';
-                sparkle.innerHTML = '✨';
-                
-                const x = Math.random() * rect.width;
-                const y = Math.random() * rect.height;
-                
-                sparkle.style.position = 'absolute';
-                sparkle.style.left = x + 'px';
-                sparkle.style.top = y + 'px';
-                sparkle.style.zIndex = '10';
-                
-                element.style.position = 'relative';
-                element.appendChild(sparkle);
-                
-                setTimeout(() => {
-                    if (sparkle.parentNode) {
-                        sparkle.parentNode.removeChild(sparkle);
-                    }
-                }, 2500);
-            }, i * 200);
-        }
-    }
-
-    createRippleEffect(event) {
-        const ripple = document.createElement('div');
-        ripple.className = 'ripple-effect magic-effect';
-        
-        const rect = event.currentTarget.getBoundingClientRect();
-        const size = Math.max(rect.width, rect.height) * 0.8;
-        const x = event.clientX - rect.left - size / 2;
-        const y = event.clientY - rect.top - size / 2;
-        
-        ripple.style.width = size + 'px';
-        ripple.style.height = size + 'px';
-        ripple.style.left = x + 'px';
-        ripple.style.top = y + 'px';
-        
-        event.currentTarget.style.position = 'relative';
-        event.currentTarget.appendChild(ripple);
-        
         setTimeout(() => {
-            if (ripple.parentNode) {
-                ripple.parentNode.removeChild(ripple);
+            if (particle.parentNode) {
+                particle.parentNode.removeChild(particle);
             }
-        }, 1500);
+        }, 35000);
     }
 
-    createButtonEffect(event) {
-        const colors = ['var(--accent-gold)', 'var(--primary-fresh)', 'var(--accent-coral)'];
+    createFloatingShape(container) {
+        const shape = document.createElement('div');
+        shape.className = 'floating-shape';
         
-        for (let i = 0; i < 8; i++) {
+        const size = Math.random() * 8 + 6;
+        const startY = Math.random() * 100;
+        const hue = 160 + Math.random() * 40; 
+        const opacity = Math.random() * 0.2 + 0.15;
+        
+        shape.style.cssText = `
+            position: absolute;
+            left: -20px;
+            top: ${startY}%;
+            width: ${size}px;
+            height: ${size}px;
+            background: hsla(${hue}, 50%, 65%, ${opacity});
+            border-radius: 20%;
+            animation: floatDiagonal ${25 + Math.random() * 20}s linear infinite;
+            pointer-events: none;
+        `;
+
+        container.appendChild(shape);
+
+        setTimeout(() => {
+            if (shape.parentNode) {
+                shape.parentNode.removeChild(shape);
+            }
+        }, 45000);
+    }
+
+    isReducedMotion() {
+        return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    }
+
+    loadCartFromStorage() {
+        try {
+            const savedCart = JSON.parse(sessionStorage.getItem('plushCart') || '[]');
+            cart = savedCart;
+            this.updateCartUI();
+        } catch (error) {
+            console.warn('Error cargando carrito:', error);
+            cart = [];
+        }
+    }
+
+    saveCartToStorage() {
+        try {
+            sessionStorage.setItem('plushCart', JSON.stringify(cart));
+        } catch (error) {
+            console.warn('Error guardando carrito:', error);
+        }
+    }
+
+    addToCart(id, name, price, image) {
+        const existingItem = cart.find(item => item.id === id);
+        
+        if (existingItem) {
+            this.showNotification('Este producto ya está en tu carrito', 'warning');
+            return;
+        }
+
+        const item = {
+            id: id,
+            name: name,
+            price: price,
+            image: image,
+            timestamp: Date.now()
+        };
+
+        cart.push(item);
+        this.saveCartToStorage();
+        this.updateCartUI();
+        this.showNotification(`${name} agregado al carrito`, 'success');
+        this.disableProductButton(id);
+        this.createAddToCartEffect(event.target);
+    }
+
+    removeFromCart(id) {
+        cart = cart.filter(item => item.id !== id);
+        this.saveCartToStorage();
+        this.updateCartUI();
+        this.enableProductButton(id);
+        this.showNotification('Producto removido del carrito', 'info');
+    }
+
+    updateCartUI() {
+        const cartCount = document.getElementById('cartCount');
+        const cartItems = document.getElementById('cartItems');
+        const cartTotal = document.getElementById('cartTotal');
+        const btnCheckout = document.getElementById('btnCheckout');
+
+        cartCount.textContent = cart.length;
+        cartCount.style.display = cart.length > 0 ? 'block' : 'none';
+        if (cart.length === 0) {
+            cartItems.innerHTML = `
+                <div class="empty-cart">
+                    <p>Tu carrito está vacío</p>
+                </div>
+            `;
+            btnCheckout.disabled = true;
+        } else {
+            cartItems.innerHTML = cart.map(item => `
+                <div class="cart-item" data-id="${item.id}">
+                    <div class="cart-item-image">
+                        <img src="${item.image}" alt="${item.name}" loading="lazy">
+                    </div>
+                    <div class="cart-item-info">
+                        <div class="cart-item-name">${item.name}</div>
+                        <div class="cart-item-price">${item.price.toFixed(2)}</div>
+                    </div>
+                    <button class="remove-item" onclick="removeFromCart('${item.id}')" title="Remover producto">
+                        ×
+                    </button>
+                </div>
+            `).join('');
+            btnCheckout.disabled = false;
+        }
+
+        const total = cart.reduce((sum, item) => sum + item.price, 0);
+        cartTotal.textContent = total.toFixed(2);
+    }
+
+    disableProductButton(productId) {
+        const productCard = document.querySelector(`[data-id="${productId}"]`);
+        if (productCard) {
+            const button = productCard.querySelector('.btn-add-cart');
+            if (button) {
+                button.disabled = true;
+                button.textContent = 'En Carrito';
+                button.style.opacity = '0.6';
+            }
+        }
+    }
+
+    enableProductButton(productId) {
+        const productCard = document.querySelector(`[data-id="${productId}"]`);
+        if (productCard) {
+            const button = productCard.querySelector('.btn-add-cart');
+            if (button) {
+                button.disabled = false;
+                button.textContent = 'Agregar al Carrito';
+                button.style.opacity = '1';
+            }
+        }
+    }
+
+    toggleCart() {
+        const cartSidebar = document.getElementById('cartSidebar');
+        const cartBackdrop = document.getElementById('cartBackdrop');
+        
+        isCartOpen = !isCartOpen;
+        
+        if (isCartOpen) {
+            cartSidebar.classList.add('active');
+            cartBackdrop.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        } else {
+            cartSidebar.classList.remove('active');
+            cartBackdrop.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    }
+
+    proceedToCheckout() {
+        if (cart.length === 0) return;
+        
+        const checkoutModal = document.getElementById('checkoutModal');
+        const orderItems = document.getElementById('orderItems');
+        const orderTotal = document.getElementById('orderTotal');
+        orderItems.innerHTML = cart.map(item => `
+            <div class="order-item">
+                <span>${item.name}</span>
+                <span>$${item.price.toFixed(2)}</span>
+            </div>
+        `).join('');
+
+        const total = cart.reduce((sum, item) => sum + item.price, 0);
+        orderTotal.textContent = total.toFixed(2);
+
+        checkoutModal.classList.add('active');
+        checkoutModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        
+        this.toggleCart();
+        this.createCheckoutCelebration();
+    }
+
+    closeCheckout() {
+        const checkoutModal = document.getElementById('checkoutModal');
+        checkoutModal.classList.remove('active');
+        checkoutModal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    closeAllModals() {
+        if (isCartOpen) this.toggleCart();
+        this.closeCheckout();
+    }
+
+    createAddToCartEffect(button) {
+        const rect = button.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+
+        for (let i = 0; i < 6; i++) {
             setTimeout(() => {
                 const particle = document.createElement('div');
-                particle.style.position = 'fixed';
-                particle.style.width = '6px';
-                particle.style.height = '6px';
-                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                particle.style.borderRadius = '50%';
-                particle.style.left = event.clientX + 'px';
-                particle.style.top = event.clientY + 'px';
-                particle.style.pointerEvents = 'none';
-                particle.style.zIndex = '1002';
-                
-                const angle = (i * 45) * Math.PI / 180;
-                const velocity = 100;
+                particle.style.cssText = `
+                    position: fixed;
+                    left: ${centerX}px;
+                    top: ${centerY}px;
+                    width: 8px;
+                    height: 8px;
+                    background: linear-gradient(45deg, #8b7cf8, #ff6b9d);
+                    border-radius: 50%;
+                    pointer-events: none;
+                    z-index: 1000;
+                    animation: particleSpread 1s ease-out forwards;
+                `;
+
+                const angle = (i * 60) * Math.PI / 180;
+                const velocity = 80;
                 const vx = Math.cos(angle) * velocity;
                 const vy = Math.sin(angle) * velocity;
                 
-                particle.style.animation = `buttonParticle 1s ease-out forwards`;
                 particle.style.setProperty('--vx', vx + 'px');
                 particle.style.setProperty('--vy', vy + 'px');
-                
+
                 document.body.appendChild(particle);
-                
+
                 setTimeout(() => {
                     if (particle.parentNode) {
                         particle.parentNode.removeChild(particle);
@@ -211,180 +343,152 @@ class MagicAnimationEngine {
         }
     }
 
-    optimizePerformance() {
-        document.addEventListener('visibilitychange', () => {
-            this.isAnimationActive = !document.hidden;
-            
-            if (document.hidden) {
-                this.particles.forEach(p => p.style.animationPlayState = 'paused');
-                this.shapes.forEach(s => s.style.animationPlayState = 'paused');
-            } else {
-                this.particles.forEach(p => p.style.animationPlayState = 'running');
-                this.shapes.forEach(s => s.style.animationPlayState = 'running');
-            }
-        });
-
-        let throttleTimer = null;
-        window.addEventListener('resize', () => {
-            if (throttleTimer) return;
-            
-            throttleTimer = setTimeout(() => {
-                this.cleanup();
-                throttleTimer = null;
-            }, 250);
-        });
-    }
-
-    cleanup() {
-        const allEffects = document.querySelectorAll('.magic-effect');
-        allEffects.forEach(effect => {
-            if (effect.parentNode) {
-                effect.parentNode.removeChild(effect);
-            }
-        });
-        this.particles = [];
-        this.shapes = [];
-    }
-}
-
-class ModalController {
-    constructor() {
-        this.modal = document.getElementById('purchaseModal');
-        this.modalProductName = document.getElementById('modalProductName');
-        this.modalPrice = document.getElementById('modalPrice');
-        this.init();
-    }
-
-    init() {
-        this.modal.addEventListener('click', (e) => {
-            if (e.target === this.modal || e.target.classList.contains('modal-backdrop')) {
-                this.close();
-            }
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.modal.style.display === 'block') {
-                this.close();
-            }
-        });
-    }
-
-    open(productName, price) {
-        this.modalProductName.textContent = productName;
-        this.modalPrice.textContent = price;
-        this.modal.style.display = 'block';
-        document.body.style.overflow = 'hidden';
+    createCheckoutCelebration() {
+        const colors = ['#8b7cf8', '#ff6b9d', '#4ecdc4', '#ffd54f', '#81c784'];
         
-        this.createCelebration();
-        
-        setTimeout(() => {
-            this.modal.querySelector('.modal-content').style.animation = 'modalSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
-        }, 10);
-    }
-
-    close() {
-        this.modal.style.display = 'none';
-        document.body.style.overflow = 'auto';
-    }
-
-    createCelebration() {
-        const colors = ['#7B68EE', '#FF6B9D', '#4ECDC4', '#FFD54F', '#81C784'];
-        const shapes = ['circle', 'square', 'triangle'];
-        
-        for (let i = 0; i < 40; i++) {
+        for (let i = 0; i < 30; i++) {
             setTimeout(() => {
                 const confetti = document.createElement('div');
-                const shape = shapes[Math.floor(Math.random() * shapes.length)];
-                const color = colors[Math.floor(Math.random() * colors.length)];
-                
-                confetti.className = `confetti-piece confetti-${shape}`;
-                confetti.style.position = 'fixed';
-                confetti.style.left = Math.random() * 100 + '%';
-                confetti.style.top = '-10px';
-                confetti.style.pointerEvents = 'none';
-                confetti.style.zIndex = '1001';
-                
-                if (shape === 'triangle') {
-                    confetti.style.width = '0';
-                    confetti.style.height = '0';
-                    confetti.style.borderLeft = '5px solid transparent';
-                    confetti.style.borderRight = '5px solid transparent';
-                    confetti.style.borderBottom = `10px solid ${color}`;
-                } else {
-                    confetti.style.width = '8px';
-                    confetti.style.height = '8px';
-                    confetti.style.backgroundColor = color;
-                }
-                
-                confetti.style.animation = `confettiDrop ${Math.random() * 3 + 2}s ease-out forwards`;
-                
+                confetti.style.cssText = `
+                    position: fixed;
+                    left: ${Math.random() * 100}%;
+                    top: -10px;
+                    width: 6px;
+                    height: 6px;
+                    background: ${colors[Math.floor(Math.random() * colors.length)]};
+                    border-radius: 50%;
+                    pointer-events: none;
+                    z-index: 1001;
+                    animation: confettiFall ${2 + Math.random() * 2}s linear forwards;
+                `;
+
                 document.body.appendChild(confetti);
-                
+
                 setTimeout(() => {
                     if (confetti.parentNode) {
                         confetti.parentNode.removeChild(confetti);
                     }
-                }, 5000);
-            }, i * 80);
+                }, 4000);
+            }, i * 50);
         }
     }
-}
 
-class ResponsiveController {
-    constructor() {
-        this.init();
+    showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        const colors = {
+            success: '#81c784',
+            warning: '#ffd54f',
+            error: '#ff8a80',
+            info: '#4ecdc4'
+        };
+
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${colors[type]};
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            z-index: 1002;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            max-width: 300px;
+            word-wrap: break-word;
+        `;
+
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 10);
+
+        setTimeout(() => {
+            notification.style.transform = 'translateX(400px)';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 300);
+        }, 3000);
     }
 
-    init() {
-        this.handleViewportChanges();
-        this.optimizeForDevice();
-        
-        window.addEventListener('resize', this.debounce(() => {
-            this.handleViewportChanges();
-        }, 250));
+    setupIntersectionObserver() {
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
 
-        window.addEventListener('orientationchange', () => {
-            setTimeout(() => {
-                this.handleViewportChanges();
-            }, 100);
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationDelay = '0s';
+                    entry.target.style.animationPlayState = 'running';
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.product-card').forEach(card => {
+            card.style.animationPlayState = 'paused';
+            observer.observe(card);
         });
     }
 
-    handleViewportChanges() {
-        const width = window.innerWidth;
-        const height = window.innerHeight;
-        
-        document.documentElement.style.setProperty('--vh', `${height * 0.01}px`);
-        
-        if (width <= 480) {
-            document.body.classList.add('mobile-small');
-        } else {
-            document.body.classList.remove('mobile-small');
-        }
+    animateProductsOnLoad() {
+        const productCards = document.querySelectorAll('.product-card');
+        productCards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+        });
 
-        if (width <= 768) {
-            document.body.classList.add('mobile');
-        } else {
-            document.body.classList.remove('mobile');
-        }
-
-        if (width >= 1200) {
-            document.body.classList.add('desktop-large');
-        } else {
-            document.body.classList.remove('desktop-large');
-        }
+        cart.forEach(item => {
+            this.disableProductButton(item.id);
+        });
     }
 
     optimizeForDevice() {
+        const isMobile = window.innerWidth <= 768;
         const isTouch = 'ontouchstart' in window;
-        const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         
-        if (isTouch || isMobile) {
-            document.body.classList.add('touch-device');
+        if (isMobile) {
+            document.body.classList.add('mobile-device');
         }
 
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-            document.body.classList.add('reduced-motion');
+        if (isTouch) {
+            document.body.classList.add('touch-device');
+ 
+            document.querySelectorAll('button, .nav-btn').forEach(el => {
+                el.addEventListener('touchstart', function() {
+                    this.style.transform = 'scale(0.95)';
+                });
+                
+                el.addEventListener('touchend', function() {
+                    this.style.transform = '';
+                });
+            });
+        }
+
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.style.setProperty('--neutral-white', '#1a1a1a');
+            document.documentElement.style.setProperty('--text-primary', '#ffffff');
+        }
+    }
+
+    handleResize() {
+        const isMobile = window.innerWidth <= 768;
+
+        if (isMobile && isCartOpen) {
+            const cartSidebar = document.getElementById('cartSidebar');
+            cartSidebar.style.width = '100vw';
+        }
+
+        const backgroundEffects = document.getElementById('backgroundEffects');
+        if (backgroundEffects.children.length < 3) {
+            this.createFloatingElements();
         }
     }
 
@@ -399,23 +503,94 @@ class ResponsiveController {
             timeout = setTimeout(later, wait);
         };
     }
+
+    throttle(func, limit) {
+        let inThrottle;
+        return function() {
+            const args = arguments;
+            const context = this;
+            if (!inThrottle) {
+                func.apply(context, args);
+                inThrottle = true;
+                setTimeout(() => inThrottle = false, limit);
+            }
+        };
+    }
 }
 
-const animationEngine = new MagicAnimationEngine();
-const modalController = new ModalController();
-const responsiveController = new ResponsiveController();
-
-function openModal(productName, price) {
-    modalController.open(productName, price);
+function addToCart(id, name, price, image) {
+    app.addToCart(id, name, price, image);
 }
 
-function closeModal() {
-    modalController.close();
+function removeFromCart(id) {
+    app.removeFromCart(id);
 }
+
+function toggleCart() {
+    app.toggleCart();
+}
+
+function proceedToCheckout() {
+    app.proceedToCheckout();
+}
+
+function closeCheckout() {
+    app.closeCheckout();
+}
+
 
 const dynamicStyles = document.createElement('style');
 dynamicStyles.textContent = `
-    @keyframes buttonParticle {
+    @keyframes gentleFloat {
+        0%, 100% { 
+            transform: translate(0, 0) rotate(0deg) scale(1); 
+        }
+        25% { 
+            transform: translate(20px, -15px) rotate(1deg) scale(1.02); 
+        }
+        50% { 
+            transform: translate(-10px, -30px) rotate(-0.5deg) scale(0.98); 
+        }
+        75% { 
+            transform: translate(15px, -20px) rotate(1.5deg) scale(1.01); 
+        }
+    }
+
+    @keyframes floatUp {
+        0% {
+            transform: translateY(100vh) translateX(0px) scale(0.8) rotate(0deg);
+            opacity: 0;
+        }
+        10% {
+            opacity: 0.6;
+        }
+        90% {
+            opacity: 0.3;
+        }
+        100% {
+            transform: translateY(-50px) translateX(30px) scale(0.4) rotate(180deg);
+            opacity: 0;
+        }
+    }
+
+    @keyframes floatDiagonal {
+        0% {
+            transform: translateX(-50px) translateY(100vh) rotate(0deg) scale(0.5);
+            opacity: 0;
+        }
+        15% {
+            opacity: 0.4;
+        }
+        85% {
+            opacity: 0.2;
+        }
+        100% {
+            transform: translateX(calc(100vw + 50px)) translateY(-50px) rotate(90deg) scale(0.2);
+            opacity: 0;
+        }
+    }
+
+    @keyframes particleSpread {
         0% {
             transform: translate(0, 0) scale(1);
             opacity: 1;
@@ -425,16 +600,115 @@ dynamicStyles.textContent = `
             opacity: 0;
         }
     }
+
+    @keyframes confettiFall {
+        0% {
+            transform: translateY(-10px) rotate(0deg);
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(100vh) rotate(720deg);
+            opacity: 0;
+        }
+    }
+
+    .floating-particle,
+    .floating-shape {
+        will-change: transform;
+    }
+
+    .product-card {
+        will-change: transform;
+    }
+
+    .cart-sidebar {
+        will-change: transform;
+    }
+
+    .modal-content {
+        will-change: transform;
+    }
+
+    .touch-device .nav-btn:active {
+        transform: scale(0.95) !important;
+    }
+
+    .touch-device .btn-add-cart:active {
+        transform: scale(0.95) !important;
+    }
+
+    @media (max-width: 768px) {
+        .floating-particle,
+        .floating-shape {
+            animation-duration: 25s !important;
+        }
+
+        .background-effects::before,
+        .background-effects::after {
+            animation-duration: 35s !important;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .floating-particle,
+        .floating-shape,
+        .background-effects::before,
+        .background-effects::after {
+            animation: none !important;
+            display: none !important;
+        }
+
+        * {
+            transition-duration: 0.1s !important;
+            animation-duration: 0.1s !important;
+        }
+    }
+
+    @media (prefers-contrast: high) {
+        :root {
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.5);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.6);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.7);
+        }
+
+        .floating-particle,
+        .floating-shape {
+            opacity: 0.1 !important;
+        }
+    }
 `;
+
 document.head.appendChild(dynamicStyles);
 
+let app;
+
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🎨 La Fil - Tienda mágica cargada correctamente');
-    
-    const productCards = document.querySelectorAll('.product-card');
-    productCards.forEach((card, index) => {
-        card.style.animationDelay = `${index * 0.1}s`;
-        card.style.opacity = '0';
-        card.style.animation = 'heroEntry 0.6s ease-out forwards';
-    });
+    app = new PlushStoreApp();
+    console.log('La Fil - Tienda de Peluches cargada correctamente');
+});
+
+window.addEventListener('error', (e) => {
+    console.error('Error en la aplicación:', e.error);
+});
+
+window.addEventListener('unhandledrejection', (e) => {
+    console.error('Promesa rechazada:', e.reason);
+});
+
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        document.querySelectorAll('.floating-particle, .floating-shape').forEach(el => {
+            el.style.animationPlayState = 'paused';
+        });
+    } else {
+        document.querySelectorAll('.floating-particle, .floating-shape').forEach(el => {
+            el.style.animationPlayState = 'running';
+        });
+    }
+});
+
+window.addEventListener('beforeunload', () => {
+    if (app && cart.length > 0) {
+        app.saveCartToStorage();
+    }
 });
