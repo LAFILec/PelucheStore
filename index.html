@@ -19,9 +19,16 @@
                 <img src="LF.png" alt="La Fil" class="logo-image">
             </a>
             
-            <nav class="nav-menu">
+            <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Abrir menú">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            
+            <nav class="nav-menu" id="navMenu">
                 <a href="https://lafilec.github.io/LAFILec/" class="nav-btn btn-home">
-                    <span>Principal</span>
+                    <span class="btn-icon">🏠</span>
+                    <span>Retornar</span>
                 </a>
                 <a href="https://lafilec.github.io/crowdfunding/" class="nav-btn btn-funding" target="_blank">
                     <span>Crowdfunding</span>
@@ -52,6 +59,7 @@
             <div class="hero-decorative-line"></div>
         </div>
     </section>
+
     <main class="products-container">
         <div class="products-grid" id="productsGrid">
             
@@ -168,6 +176,7 @@
                     </button>
                 </div>
             </article>
+
             <article class="product-card" data-id="conejo-te-amo">
                 <div class="product-badge">Único</div>
                 <div class="product-image">
@@ -251,6 +260,7 @@
     </div>
 
     <div class="cart-backdrop" id="cartBackdrop" onclick="toggleCart()"></div>
+
     <div class="checkout-modal" id="checkoutModal">
         <div class="modal-backdrop" onclick="closeCheckout()"></div>
         <div class="modal-content">
@@ -307,4 +317,3 @@
     <script src="script.js"></script>
 </body>
 </html>
-
