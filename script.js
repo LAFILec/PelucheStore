@@ -1,5 +1,7 @@
 let cart = [];
 let isCartOpen = false;
+let isMobileMenuOpen = false;
+
 class PlushStoreApp {
     constructor() {
         this.init();
@@ -9,15 +11,10 @@ class PlushStoreApp {
         this.setupEventListeners();
         this.initializeBackgroundEffects();
         this.loadCartFromStorage();
-        this.setupIntersectionObserver();
         this.optimizeForDevice();
     }
 
     setupEventListeners() {
-        document.addEventListener('DOMContentLoaded', () => {
-            this.animateProductsOnLoad();
-        });
-
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 this.closeAllModals();
@@ -27,10 +24,31 @@ class PlushStoreApp {
         window.addEventListener('resize', this.debounce(() => {
             this.handleResize();
         }, 250));
-        document.querySelectorAll('button').forEach(btn => {
-            btn.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-            }, { passive: false });
+
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (isMobileMenuOpen) {
+                    this.toggleMobileMenu();
+                }
+            });
+        });
+
+        document.addEventListener('click', (e) => {
+            const navMenu = document.getElementById('navMenu');
+            const mobileToggle = document.querySelector('.mobile-menu-toggle');
+            
+            if (isMobileMenuOpen && !navMenu.contains(e.target) && !mobileToggle.contains(e.target)) {
+                this.toggleMobileMenu();
+            }
+        });
+
+        window.addEventListener('orientationchange', () => {
+            setTimeout(() => {
+                this.handleResize();
+                if (isMobileMenuOpen) {
+                    this.toggleMobileMenu();
+                }
+            }, 100);
         });
     }
 
@@ -80,7 +98,7 @@ class PlushStoreApp {
         
         const size = Math.random() * 4 + 3;
         const startX = Math.random() * 100;
-        const hue = 220 + Math.random() * 60; 
+        const hue = 220 + Math.random() * 60;
         const opacity = Math.random() * 0.3 + 0.2;
         
         particle.style.cssText = `
@@ -110,7 +128,7 @@ class PlushStoreApp {
         
         const size = Math.random() * 8 + 6;
         const startY = Math.random() * 100;
-        const hue = 160 + Math.random() * 40; 
+        const hue = 160 + Math.random() * 40;
         const opacity = Math.random() * 0.2 + 0.15;
         
         shape.style.cssText = `
@@ -144,7 +162,6 @@ class PlushStoreApp {
             cart = savedCart;
             this.updateCartUI();
         } catch (error) {
-            console.warn('Error cargando carrito:', error);
             cart = [];
         }
     }
@@ -153,7 +170,7 @@ class PlushStoreApp {
         try {
             sessionStorage.setItem('plushCart', JSON.stringify(cart));
         } catch (error) {
-            console.warn('Error guardando carrito:', error);
+            console.warn('Error saving cart');
         }
     }
 
@@ -197,6 +214,7 @@ class PlushStoreApp {
 
         cartCount.textContent = cart.length;
         cartCount.style.display = cart.length > 0 ? 'block' : 'none';
+
         if (cart.length === 0) {
             cartItems.innerHTML = `
                 <div class="empty-cart">
@@ -250,6 +268,23 @@ class PlushStoreApp {
         }
     }
 
+    toggleMobileMenu() {
+        const navMenu = document.getElementById('navMenu');
+        const mobileToggle = document.querySelector('.mobile-menu-toggle');
+        
+        isMobileMenuOpen = !isMobileMenuOpen;
+        
+        if (isMobileMenuOpen) {
+            navMenu.classList.add('active');
+            mobileToggle.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        } else {
+            navMenu.classList.remove('active');
+            mobileToggle.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    }
+
     toggleCart() {
         const cartSidebar = document.getElementById('cartSidebar');
         const cartBackdrop = document.getElementById('cartBackdrop');
@@ -273,10 +308,11 @@ class PlushStoreApp {
         const checkoutModal = document.getElementById('checkoutModal');
         const orderItems = document.getElementById('orderItems');
         const orderTotal = document.getElementById('orderTotal');
+
         orderItems.innerHTML = cart.map(item => `
             <div class="order-item">
                 <span>${item.name}</span>
-                <span>$${item.price.toFixed(2)}</span>
+                <span>${item.price.toFixed(2)}</span>
             </div>
         `).join('');
 
@@ -300,6 +336,7 @@ class PlushStoreApp {
 
     closeAllModals() {
         if (isCartOpen) this.toggleCart();
+        if (isMobileMenuOpen) this.toggleMobileMenu();
         this.closeCheckout();
     }
 
@@ -417,37 +454,19 @@ class PlushStoreApp {
         }, 3000);
     }
 
-    setupIntersectionObserver() {
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.animationDelay = '0s';
-                    entry.target.style.animationPlayState = 'running';
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, observerOptions);
-
-        document.querySelectorAll('.product-card').forEach(card => {
-            card.style.animationPlayState = 'paused';
-            observer.observe(card);
-        });
-    }
-
-    animateProductsOnLoad() {
-        const productCards = document.querySelectorAll('.product-card');
-        productCards.forEach((card, index) => {
-            card.style.animationDelay = `${index * 0.1}s`;
-        });
-
-        cart.forEach(item => {
-            this.disableProductButton(item.id);
-        });
+    handleResize() {
+        const isMobile = window.innerWidth <= 768;
+        
+        if (!isMobile && isMobileMenuOpen) {
+            this.toggleMobileMenu();
+        }
+        
+        const cartSidebar = document.getElementById('cartSidebar');
+        if (isMobile && isCartOpen) {
+            cartSidebar.style.width = '100vw';
+        } else if (!isMobile && isCartOpen) {
+            cartSidebar.style.width = '400px';
+        }
     }
 
     optimizeForDevice() {
@@ -460,36 +479,11 @@ class PlushStoreApp {
 
         if (isTouch) {
             document.body.classList.add('touch-device');
- 
-            document.querySelectorAll('button, .nav-btn').forEach(el => {
-                el.addEventListener('touchstart', function() {
-                    this.style.transform = 'scale(0.95)';
-                });
-                
-                el.addEventListener('touchend', function() {
-                    this.style.transform = '';
-                });
-            });
         }
 
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            document.documentElement.style.setProperty('--neutral-white', '#1a1a1a');
-            document.documentElement.style.setProperty('--text-primary', '#ffffff');
-        }
-    }
-
-    handleResize() {
-        const isMobile = window.innerWidth <= 768;
-
-        if (isMobile && isCartOpen) {
-            const cartSidebar = document.getElementById('cartSidebar');
-            cartSidebar.style.width = '100vw';
-        }
-
-        const backgroundEffects = document.getElementById('backgroundEffects');
-        if (backgroundEffects.children.length < 3) {
-            this.createFloatingElements();
-        }
+        cart.forEach(item => {
+            this.disableProductButton(item.id);
+        });
     }
 
     debounce(func, wait) {
@@ -530,6 +524,10 @@ function toggleCart() {
     app.toggleCart();
 }
 
+function toggleMobileMenu() {
+    app.toggleMobileMenu();
+}
+
 function proceedToCheckout() {
     app.proceedToCheckout();
 }
@@ -538,24 +536,8 @@ function closeCheckout() {
     app.closeCheckout();
 }
 
-
 const dynamicStyles = document.createElement('style');
 dynamicStyles.textContent = `
-    @keyframes gentleFloat {
-        0%, 100% { 
-            transform: translate(0, 0) rotate(0deg) scale(1); 
-        }
-        25% { 
-            transform: translate(20px, -15px) rotate(1deg) scale(1.02); 
-        }
-        50% { 
-            transform: translate(-10px, -30px) rotate(-0.5deg) scale(0.98); 
-        }
-        75% { 
-            transform: translate(15px, -20px) rotate(1.5deg) scale(1.01); 
-        }
-    }
-
     @keyframes floatUp {
         0% {
             transform: translateY(100vh) translateX(0px) scale(0.8) rotate(0deg);
@@ -611,71 +593,6 @@ dynamicStyles.textContent = `
             opacity: 0;
         }
     }
-
-    .floating-particle,
-    .floating-shape {
-        will-change: transform;
-    }
-
-    .product-card {
-        will-change: transform;
-    }
-
-    .cart-sidebar {
-        will-change: transform;
-    }
-
-    .modal-content {
-        will-change: transform;
-    }
-
-    .touch-device .nav-btn:active {
-        transform: scale(0.95) !important;
-    }
-
-    .touch-device .btn-add-cart:active {
-        transform: scale(0.95) !important;
-    }
-
-    @media (max-width: 768px) {
-        .floating-particle,
-        .floating-shape {
-            animation-duration: 25s !important;
-        }
-
-        .background-effects::before,
-        .background-effects::after {
-            animation-duration: 35s !important;
-        }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        .floating-particle,
-        .floating-shape,
-        .background-effects::before,
-        .background-effects::after {
-            animation: none !important;
-            display: none !important;
-        }
-
-        * {
-            transition-duration: 0.1s !important;
-            animation-duration: 0.1s !important;
-        }
-    }
-
-    @media (prefers-contrast: high) {
-        :root {
-            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.5);
-            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.6);
-            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.7);
-        }
-
-        .floating-particle,
-        .floating-shape {
-            opacity: 0.1 !important;
-        }
-    }
 `;
 
 document.head.appendChild(dynamicStyles);
@@ -684,15 +601,6 @@ let app;
 
 document.addEventListener('DOMContentLoaded', () => {
     app = new PlushStoreApp();
-    console.log('La Fil - Tienda de Peluches cargada correctamente');
-});
-
-window.addEventListener('error', (e) => {
-    console.error('Error en la aplicación:', e.error);
-});
-
-window.addEventListener('unhandledrejection', (e) => {
-    console.error('Promesa rechazada:', e.reason);
 });
 
 document.addEventListener('visibilitychange', () => {
